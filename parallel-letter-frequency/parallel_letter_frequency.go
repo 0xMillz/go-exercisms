@@ -1,22 +1,20 @@
 package letter
 
 func ConcurrentFrequency(ss []string) FreqMap {
-	m := FreqMap{} // master map
-
 	c := make(chan FreqMap)
 
 	for _, s := range ss {
-		go func() {
-			c <- Frequency(s)
-		}()
+		go func(str string) {
+			c <- Frequency(str)
+		}(s)
 	}
+
+	m := FreqMap{}
 
 	for range ss {
-		msg := <- c
-		for k, v := range msg {
-			m[k] = m[k] + v
+		for k, v := range <-c {
+			m[k] += v
 		}
 	}
-
 	return m
 }
